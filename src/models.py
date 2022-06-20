@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String , DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -13,46 +13,52 @@ class Users(Base):
     # Here we define columns for the table person
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    Second_name = Column(String(250), nullable=False)
+    name = Column(String(250))
+    username = Column(String(20),nullable=False)
     email = Column(String(250),nullable=False)
-    subscription_date = Column(DateTime)
-    Password = Column(String(250), nullable=False)
-    
+    password = Column(String(250),nullable=False)
 
-class Favorites(Base):
-    __tablename__ = 'Favorites'
+
+class Likes(Base):
+    __tablename__ = 'Likes'
     # Here we define columns for the table address.
     # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
-    userid = Column(Integer, ForeignKey('Users.id'))
- 
+    user_id = Column(Integer, ForeignKey('Users.id'))
+    post_id = Column(Integer, ForeignKey('Posts.id'))
+    Users = relationship(Users)
 
-class Characters(Base):
-    __tablename__='Characters'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Posts(Base):
+    __tablename__='Posts'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250))
-    species = Column(String(250))
-    homeworld = Column(String(250), nullable=False)
-    favoritesid = Column(Integer, ForeignKey('Favorites.id'))
-    planetsid = Column(Integer, ForeignKey('Planets.id'))
+    user_id = Column(Integer,ForeignKey('Users.id'))
+    photo = Column(String(250))
+    description = Column(String(250))
+    created_at = Column(DateTime)
+    update_at = Column(DateTime)
 
-class Planets(Base):
-    __tablename__ = 'Planets'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250))
-    population = Column(String(250))
-    films = Column(String(250), nullable=False)
-    residents = Column(String(250))
-    favoritesid = Column(Integer, ForeignKey('Favorites.id'))
-    charactersid = Column(Integer, ForeignKey('Characters.id'))
+class Comments(Base):
+    __tablename__='Comments'
+    id = Column(Integer,primary_key=True)
+    user_id = Column(Integer,ForeignKey('Users.id'))
+    post_id = Column(Integer,ForeignKey('Posts.id'))
+    content = Column(String(250))
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+
+class Followers(Base):
+    __tablename__='Followers'
+    id = Column(Integer,primary_key=True)
+    user_id = Column(Integer,ForeignKey('Users.id'))
+    #accepted = Column(Boolean)
 
     def to_dict(self):
         return {}
 
 ## Draw from SQLAlchemy base
-render_er(Base, 'diagram.png')
+try:
+    result = render_er(Base, 'diagram.png')
+    print("Success! Check the diagram.png file")
+except Exception as e:
+    print("There was a problem genering the diagram")
+    raise e
